@@ -6,7 +6,7 @@ theme:
     - navigation.tabs
 
 plugins:
-  - pymd
+  - ipymd
 
 nav:
   - Home: index.md
@@ -40,3 +40,4 @@ extra_javascript:
 
 extra_css:
   - https://unpkg.com/katex@0/dist/katex.min
+  - extras/pandas.css

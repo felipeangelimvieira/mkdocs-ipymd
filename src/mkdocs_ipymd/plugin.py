@@ -1,29 +1,27 @@
-# mkdocs_pymd_plugin.py
 
 import os
 import shutil
 import tempfile
 from pathlib import Path
 
+import mkdocs
 from mkdocs.plugins import BasePlugin
 from mkdocs.structure.files import File, Files
 
 # Import your converters
-from mkdocs_pymd.converters import IPyToJupyter, JupyterToMarkdown
+from mkdocs_ipymd.converters import IPyToJupyter, JupyterToMarkdown
 
 __all__ = [
     "PyToMarkdownPlugin",
 ]
 
 
-class IPyFile(File):
-    def __init__(self, path, src_dir, dest_dir, use_directory_urls):
-        super().__init__(path, src_dir, dest_dir, use_directory_urls)
-    
-    def is_documentation_page(self):
-        return True
 
 class PyToMarkdownPlugin(BasePlugin):
+    config_scheme = (
+        ("nbconvert_template", mkdocs.config.config_options.Type(str, default=None)),
+    )
+    
     def __init__(self):
         self.generated_files_directory = None
 
@@ -46,7 +44,8 @@ class PyToMarkdownPlugin(BasePlugin):
 
                 # Use the converters to generate the markdown file
                 converter_py_to_ipynb = IPyToJupyter()
-                converter_ipynb_to_md = JupyterToMarkdown(execute=True)
+                converter_ipynb_to_md = JupyterToMarkdown(execute=True,
+                                                          template_file=self.config["nbconvert_template"])
                 sequential_converter = converter_py_to_ipynb >> converter_ipynb_to_md
                 sequential_converter.convert(src_file_path, temp_md_path)
 

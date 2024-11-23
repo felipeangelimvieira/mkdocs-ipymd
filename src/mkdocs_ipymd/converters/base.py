@@ -5,6 +5,14 @@ from tempfile import TemporaryDirectory
 __all__ = ["BaseConverter", "SequentialConverter"]
 
 class BaseConverter:
+    """
+    Base class for converters.
+    
+    Attributes
+    ----------
+    VALID_INPUT_EXTENSIONS : tuple
+        A tuple of valid input file extensions.
+    """
 
     VALID_INPUT_EXTENSIONS = (None,)
 
@@ -16,6 +24,16 @@ class BaseConverter:
         Check if filepath is in self.VALID_INPUT_EXTENSIONS.
         
         Also check if file exists
+        
+        Parameters
+        ----------
+        input_path : str
+            The path to the input file.
+            
+        Raises
+        ------
+        FileNotFoundError
+            If the file does not exist.
         """
         input_path = str(input_path)
 
@@ -25,23 +43,23 @@ class BaseConverter:
         if not input_path.endswith(self.VALID_INPUT_EXTENSIONS):
             raise ValueError(f"Invalid file extension: {input_path}")
 
-    def convert(self, input_path, output_path):
+    def convert(self, input_path : str, output_path : str):
         """
         Convert input_path to output_path.
         """
         self._validate_filepath(input_path)
         self._convert(input_path, output_path)
 
-    def _convert(self, input_path, output_path):
+    def _convert(self, input_path : str, output_path : str):
         raise NotImplementedError("Subclasses must implement _convert method")
 
-    def save(self, output_path):
+    def save(self, output_path : str):
         """
         Default save method calls convert with self.filepath as input.
         """
         self.convert(self.filepath, output_path)
 
-    def __rshift__(self, other):
+    def __rshift__(self, other : "BaseConverter") -> "SequentialConverter":
         """
         Overload the >> operator to chain converters.
         """
@@ -54,10 +72,28 @@ class BaseConverter:
 
 
 class SequentialConverter(BaseConverter):
-    def __init__(self, converters):
+    """
+    Sequential converter that applies a series of converters in order.
+    
+    Parameters
+    ----------
+    converters : list
+        A list of converters to apply in order.
+    
+    """
+    def __init__(self, converters : list):
         self.converters = converters
 
-    def convert(self, input_path, output_path):
+    def convert(self, input_path : str, output_path : str):
+        """Convert input_path to output_path using the sequence of converters.
+
+        Args:
+            input_path (str): the path to the input file
+            output_path (str): the path to the output file
+
+        Returns:
+            None
+        """
         with TemporaryDirectory() as temp_dir:
             temp_dir = pathlib.Path(temp_dir)
             for idx, converter in enumerate(self.converters):
@@ -74,7 +110,7 @@ class SequentialConverter(BaseConverter):
 
 
     def get_output_extension(self):
-        # Returns the output extension of the last converter
+        """Return the output extension of the last converter"""
         return self.converters[-1].get_output_extension()
     
     @property

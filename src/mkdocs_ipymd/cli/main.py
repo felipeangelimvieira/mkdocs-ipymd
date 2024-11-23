@@ -2,8 +2,8 @@ import os
 
 import click
 
-from mkdocs_pymd.converters.to_jupyter import IPyToJupyter
-from mkdocs_pymd.converters.to_markdown import JupyterToMarkdown
+from mkdocs_ipymd.converters.to_jupyter import IPyToJupyter
+from mkdocs_ipymd.converters.to_markdown import JupyterToMarkdown
 
 
 @click.group()

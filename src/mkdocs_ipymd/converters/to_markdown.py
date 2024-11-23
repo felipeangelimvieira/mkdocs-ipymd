@@ -7,23 +7,27 @@ from nbclient import NotebookClient
 from nbconvert import MarkdownExporter
 from nbconvert.writers import FilesWriter
 
-from mkdocs_pymd.converters.base import BaseConverter
+from mkdocs_ipymd.converters.base import BaseConverter
 
 __all__ = ["JupyterToMarkdown"]
 
 
 class JupyterToMarkdown(BaseConverter):
+    """"Convert Jupyter notebook to Markdown.
+    
+    Parameters
+    ----------
+    execute: bool, optional
+        Whether to execute the notebook before converting to Markdown. Default is False.
+    template_file: str, optional
+        Path to a custom template file to use for the conversion.
+        Default is None, which uses the default template
+    """
 
     VALID_INPUT_EXTENSIONS = (".ipynb",)
 
     def __init__(self, execute=False, template_file=None):
-        """
-        Initialize the converter.
 
-        Parameters:
-        - execute (bool): Whether to execute the notebook before conversion.
-        - template_file (str): Path to the custom nbconvert template.
-        """
         self.execute = execute
         self.template_file = template_file
         super().__init__()
@@ -33,8 +37,21 @@ class JupyterToMarkdown(BaseConverter):
             self._template = Path(__file__).parent / Path("templates/default_template.tpl")
         else:
             self._template = Path(template_file)
-        
-    def _convert(self, input_path, output_path):
+
+    def _convert(self, input_path : str, output_path : str):
+        """Convert Jupyter notebook to Markdown.
+
+        Parameters
+        ----------
+        input_path : str
+            the path to the input file
+        output_path : str
+            the path to the output file
+
+        Returns
+        -------
+        None
+        """
         self.notebook_path = input_path
         self.load_notebook()
         self.update_kernelspec()
@@ -74,11 +91,20 @@ class JupyterToMarkdown(BaseConverter):
 
     def convert_to_markdown(self, output_path=None):
         """
-        Convert the notebook to a Markdown file, ensuring images and other resources are saved.
+        Convert the notebook to a Markdown file.
 
-        Parameters:
-        - output_path (str): Path to save the output .md file. If None, saves in the same directory with the same name.
+        Ensures images and other resources are saved.
+
+        Parameters
+        ----------
+        output_path : str, optional
+            Path to save the output .md file. If None, saves in the same directory
+            with the same name.
+        output_path (str): Path to save the output .md file. 
+            If None, saves in the same directory with the same name.
         """
+        # Code below 70% by chatgpt ;)
+        
         print("Converting notebook to Markdown...")
 
         # Use the custom template if provided
