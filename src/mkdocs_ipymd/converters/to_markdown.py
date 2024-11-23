@@ -5,7 +5,9 @@ from pathlib import Path
 import nbformat
 from nbclient import NotebookClient
 from nbconvert import MarkdownExporter
+from nbconvert.preprocessors import TagRemovePreprocessor
 from nbconvert.writers import FilesWriter
+from traitlets.config import Config
 
 from mkdocs_ipymd.converters.base import BaseConverter
 
@@ -26,10 +28,18 @@ class JupyterToMarkdown(BaseConverter):
 
     VALID_INPUT_EXTENSIONS = (".ipynb",)
 
-    def __init__(self, execute=False, template_file=None):
+    def __init__(self,
+                 execute=False,
+                 template_file=None,
+                 remove_cell_tag="remove_cell",
+                 remove_all_outputs_tag="remove_output",
+                 remove_input_tag="remove_input"):
 
         self.execute = execute
         self.template_file = template_file
+        self.remove_cell_tag = remove_cell_tag
+        self.remove_all_outputs_tag = remove_all_outputs_tag
+        self.remove_input_tag = remove_input_tag
         super().__init__()
         self.notebook = None  # Will hold the notebook object after loading
         self.generated_files = []  # List to store generated files
@@ -104,16 +114,28 @@ class JupyterToMarkdown(BaseConverter):
             If None, saves in the same directory with the same name.
         """
         # Code below 70% by chatgpt ;)
-        
+
         print("Converting notebook to Markdown...")
 
+        config = Config()
+
+        config.TagRemovePreprocessor.remove_cell_tags = (self.remove_cell_tag,)
+        config.TagRemovePreprocessor.remove_all_outputs_tags = (self.remove_all_outputs_tag,)
+        config.TagRemovePreprocessor.remove_input_tags = (self.remove_input_tag,)
+        config.TagRemovePreprocessor.enabled = True
+        config.MarkdownExporter.preprocessors = ["nbconvert.preprocessors.TagRemovePreprocessor"]
         # Use the custom template if provided
         if self._template:
             # Create an exporter with the custom template
-            exporter = MarkdownExporter(template_file=str(self._template))
+            exporter = MarkdownExporter(template_file=str(self._template),
+                                        config=config)
         else:
-            exporter = MarkdownExporter()
+            exporter = MarkdownExporter(config=config)
 
+        exporter.register_preprocessor(
+            TagRemovePreprocessor(config=config),enabled=True
+        )
+        
         # Set up resources
         resources = {}
         # Determine the output path and base name
