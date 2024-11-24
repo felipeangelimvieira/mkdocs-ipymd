@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mkdocs_ipymd"
-version = "0.0.2"
+version = "0.0.3"
 description = ""
 authors = ["Felipe Angelim <felipeangelim@gmail.com>"]
 readme = "README.md"
@@ -25,7 +25,7 @@ pytest-cov = {version = "^6.0.0", optional = true}
 
 
 [tool.poetry.scripts]
-mkdocs-pymd = "mkdocs_ipymd.cli.main:cli"
+mkdocs-ipymd = "mkdocs_ipymd.cli.main:cli"
 
 
 [tool.poetry.extras]

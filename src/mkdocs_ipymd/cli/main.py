@@ -11,34 +11,40 @@ def cli():
     """Main entry point for skcausal CLI."""
     pass
 
-
-@click.command()
+@cli.command()
 @click.argument("filepath", required=True, type=click.Path(exists=True, dir_okay=False))
-@click.option("--to", required=True, type=click.Choice(["jupyter", "markdown"]))
-def convert(filepath, to):
+@click.option(
+    "--template-file", required=False, type=click.Path(exists=True, dir_okay=False),
+    help="Path to a custom template file to use for the conversion from .ipynb to .md."\
+    "Default is None, which uses the default template."
+)
+@click.option("--remove_all_outputs_tag", required=False, default="remove_output")
+@click.option("--remove_input_tag", required=False, default="remove_input")
+@click.option("--remove_cell_tag", required=False, default="remove_cell")
+def ipy2md(filepath,
+           template_file=None,
+           remove_all_outputs_tag="remove_output",
+           remove_input_tag="remove_input",
+           remove_cell_tag="remove_cell"
+           ):
     """
-    Convert a Python script with VSCode-style cells into a Jupyter notebook.
+    Convert a Jupyter notebook into a Markdown file.
 
-    FILEPATH: Path to the input .py file.
+    FILEPATH: Path to the input .ipynb file.
     """
-    if to == "jupyter":
-        converter = IPyToJupyter()
-        format = ".ipynb"
-
-    elif to == "markdown":
-        converter = JupyterToMarkdown(execute=True)
-        format = ".md"
-
-    # Get the output path
-    dir_name = os.path.dirname(filepath)
-    base_name = os.path.splitext(os.path.basename(filepath))[0]
-    output_path = os.path.join(dir_name, base_name + format)
+    converter = IPyToJupyter() >> JupyterToMarkdown(
+        execute=True,
+        template_file=template_file,
+        remove_all_outputs_tag=remove_all_outputs_tag,
+        remove_input_tag=remove_input_tag,
+        remove_cell_tag=remove_cell_tag,
+    )
+    
+    output_path = os.path.splitext(filepath)[0] + ".md"
     
     converter.convert(filepath, output_path)
-    print(f"Notebook saved to {output_path}")
 
-
-cli.add_command(convert)
+cli.add_command(ipy2md)
 
 if __name__ == "__main__":
     cli()

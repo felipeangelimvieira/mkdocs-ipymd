@@ -2,10 +2,10 @@
 
 {%- block outputs -%}
 
-
-<div class="jp-OutputArea jp-Cell-outputArea cell-output">
-<p class="cell-output-title">Output</p>
+<p class="cell-output-title" style="font-size: small; font-weight: 700; margin-bottom: 1rem;">
+Output
+</p>
 {{ super() }}
-</div>
+
 
 {%- endblock outputs -%}
